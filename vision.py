@@ -15,7 +15,8 @@ def get_labels(img):
 	descriptions = '"'
 	for label in labels:
 		descriptions+= label.description + ', '
-	return descriptions + '"'
+ 	descriptions += '"'
+	descriptions = descriptions.encode('utf-8').strip()
 
 '''
 I'll just grab the images from my machine. I'm not going to use the Box API
