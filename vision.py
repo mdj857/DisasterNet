@@ -17,6 +17,7 @@ def get_labels(img):
 		descriptions+= label.description + ', '
  	descriptions += '"'
 	descriptions = descriptions.encode('utf-8').strip()
+	return descriptions
 
 '''
 I'll just grab the images from my machine. I'm not going to use the Box API
@@ -55,6 +56,7 @@ for dir, subdir, files in os.walk('/Users/mattjohnson/Desktop/Research/Images'):
 
 		# create list of of the form [image_name, string of labels] to resemble one image>
 		images_list.append([file_name,get_labels(image)])
+		
 
 # write to .csv...
 with open('google_cloud_image_annotations.csv', 'w') as f:
