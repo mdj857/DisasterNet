@@ -7,11 +7,15 @@ import matplotlib.pyplot as plt
 from collections import Counter
 import sys
 
+# fix weird unicode bug and convert all strings to unicode
+reload(sys)  
+sys.setdefaultencoding('utf8')
 
 '''
-This function plots the top n most frequent tags for a given date. 
+This function plots the top n most frequent tags for a given date using matplotlib
+and saves the figure to the current working directory as <date_freq_analysis.png>.
 '''
-def plot_frequency_of_top_n_words(date, n):
+def plot_frequency_of_top_n_words(df, date, n):
 	# get portion of dataframe whose date is as selected
 	date_df =  df[df.date==date]
 
@@ -29,12 +33,12 @@ def plot_frequency_of_top_n_words(date, n):
 	count = zip(*n_most_common)[1]
 	x_pos = np.arange(len(tags)) 
     
+    # plot magic
 	plt.bar(x_pos, count,align='center')
 	plt.xticks(x_pos, tags, rotation = 'vertical') 
 	plt.xlabel('Tags')
 	plt.ylabel('Frequency')
 	plt.title('Tag Frequency for ' + date)
-
 	plt.gca().margins(x=0)
 	plt.gcf().canvas.draw()
 	tl = plt.gca().get_xticklabels()
@@ -43,36 +47,23 @@ def plot_frequency_of_top_n_words(date, n):
 	m = 0.5 # inch margin
 	s = maxsize/plt.gcf().dpi*len(tags)+2*m
 	margin = m/plt.gcf().get_size_inches()[0]
-
 	plt.gcf().subplots_adjust(left=margin, right=1.-margin, bottom=0.1)
 	plt.gcf().set_size_inches(s, plt.gcf().get_size_inches()[1])
 	plt.tight_layout()
 	plt.savefig(date+ str('_freq_analysis')+".png")
+	plt.clf()
+
+def main(): 
+	df = pd.read_csv("google_cloud_image_annotations.csv")
+	# remove the enclosing quotes and trailing comma used to format the .cs
+	df['tags'] = df.apply(lambda row: row['tags'].replace(', "', ''), axis=1)
+	df['tags'] = df.apply(lambda row: row['tags'].replace('"', ''), axis=1)
+
+	for date in df.date.unique():
+		plot_frequency_of_top_n_words(df, date, 50)
 
 
-	
-	
-
-	# # Plot histogram 
-	# indexes = np.arange(len(tags))
-	# width = 0.7
-	# plt.bar(indexes, tag_counts, width, orientation='vertical')
-	# plt.xticks(indexes + width * 0.5, tags)
-	# plt.show()
-
-
-# fix weird unicode bug and convert all strings to unicode
-reload(sys)  
-sys.setdefaultencoding('utf8')
-
-
-df = pd.read_csv("google_cloud_image_annotations.csv")
-
-# remove the enclosing quotes and trailing comma used to format the .cs
-df['tags'] = df.apply(lambda row: row['tags'].replace(', "', ''), axis=1)
-df['tags'] = df.apply(lambda row: row['tags'].replace('"', ''), axis=1)
-
-plot_frequency_of_top_n_words('2017-08-17', 50)
-
+if __name__ == "__main__":
+    main()
 
 
