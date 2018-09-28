@@ -15,14 +15,18 @@ sys.setdefaultencoding('utf8')
 This function plots the top n most frequent tags for a given date using matplotlib
 and saves the figure to the current working directory as <date_freq_analysis.png>.
 '''
-def plot_frequency_of_top_n_words(df, date, n):
-	# get portion of dataframe whose date is as selected
-	date_df =  df[df.date==date]
-
-	# collect all comma-seperated tags for this specific date
+def plot_frequency_of_top_n_words(df, n, date='ALL'):
 	tags_for_date = []
-	for index, row in date_df.iterrows(): 
-		tags_for_date += row['tags'].split(', ') 
+	if (date == 'ALL'):
+		for index, row in df.iterrows(): 
+			tags_for_date += row['tags'].split(', ') 
+	else: 
+		# get portion of dataframe whose date is as selected
+		date_df =  df[df.date==date]
+
+		# collect all comma-seperated tags for this specific date
+		for index, row in date_df.iterrows(): 
+			tags_for_date += row['tags'].split(', ') 
 
 	
 	# get the n most-common tags in the form: 
@@ -59,9 +63,12 @@ def main():
 	df['tags'] = df.apply(lambda row: row['tags'].replace(', "', ''), axis=1)
 	df['tags'] = df.apply(lambda row: row['tags'].replace('"', ''), axis=1)
 
-	for date in df.date.unique():
-		plot_frequency_of_top_n_words(df, date, 50)
 
+	for date in df.date.unique():
+		plot_frequency_of_top_n_words(df, 50, date)
+
+	# plot aggregate analysis 
+	plot_frequency_of_top_n_words(df, 50)
 
 if __name__ == "__main__":
     main()
