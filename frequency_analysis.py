@@ -64,11 +64,11 @@ def main():
 	df['tags'] = df.apply(lambda row: row['tags'].replace('"', ''), axis=1)
 
 
-	for date in df.date.unique():
-		plot_frequency_of_top_n_words(df, 50, date)
+	# for date in df.date.unique():
+	# 	plot_frequency_of_top_n_words(df, 50, date)
 
 	# plot aggregate analysis 
-	plot_frequency_of_top_n_words(df, 50)
+	plot_frequency_of_top_n_words(df, 100)
 
 if __name__ == "__main__":
     main()
