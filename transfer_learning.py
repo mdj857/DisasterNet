@@ -1,6 +1,8 @@
 
-# This file uses transfer learning via the VGG16 convnet to build a model to identify 
-# the urgency of each images as coded by Brett
+# This file uses a MLP with three hidden layers to predict the "urgency" of an image from a feature vector
+# created by passing the corresponding image through the VGG16 Convnet. 
+
+# Created by Matt Johnson 10/16/18
 
 import pickle
 import numpy as np
@@ -25,11 +27,8 @@ with open('../y_urgency.pkl', 'rb') as f:
 	Y_urgency_old = pickle.load(f)
 
 
-# In[9]:
 
-print len(feature_vecs_old)
-print len(Y_urgency_old)
-
+# remove the feature vecs and urgency levels for images with an empty label
 feature_vecs = []
 Y_urgency = []
 for a, b in zip(feature_vecs_old, Y_urgency_old):
@@ -37,19 +36,12 @@ for a, b in zip(feature_vecs_old, Y_urgency_old):
         feature_vecs.append(a)
         Y_urgency.append(b)
         
-print len(feature_vecs)
-print len(Y_urgency)
 
-print set(Y_urgency)
-
-
-# In[10]:
 
 # loading VGG16 model weights
 vgg_model = VGG16(weights='imagenet', include_top=False)
 
 
-# In[14]:
 
 feature_vecs = np.asarray(feature_vecs)
 # flattening the layers to conform to MLP input
@@ -60,10 +52,7 @@ Y=np.asarray(Y_urgency)
 Y=pd.get_dummies(Y)
 
 
-# In[26]:
-
 #creating training and validation set
-
 from sklearn.model_selection import train_test_split
 X_train, X_valid, Y_train, Y_valid=train_test_split(X,Y,test_size=0.2, random_state=42)
 
@@ -72,17 +61,16 @@ X_train, X_valid, Y_train, Y_valid=train_test_split(X,Y,test_size=0.2, random_st
 X_valid = np.asarray(X_valid)
 Y_valid = np.asarray(Y_valid)
 
-model=Sequential()
 
+
+# model creation and fit 
+model=Sequential()
 model.add(Dense(1000, input_dim=25088, activation='relu',kernel_initializer='uniform'))
 keras.layers.core.Dropout(0.3, noise_shape=None, seed=None)
-
 model.add(Dense(500,input_dim=1000,activation='sigmoid'))
 keras.layers.core.Dropout(0.4, noise_shape=None, seed=None)
-
 model.add(Dense(150,input_dim=500,activation='sigmoid'))
 keras.layers.core.Dropout(0.2, noise_shape=None, seed=None)
-
 model.add(Dense(units=5))
 model.add(Activation('softmax'))
 

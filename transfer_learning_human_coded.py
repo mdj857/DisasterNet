@@ -46,31 +46,15 @@ df.apply (lambda row: label_race (row),axis=1)
 x_img=[]
 y_urgency =[]
 for index, row in combined.iterrows():
-	
 	image_number = row['Q3ImageNumber']
     temp_img=image.load_img(images_path+,target_size=(224,224))
-
     temp_img=image.img_to_array(temp_img)
-
     train_img.append(temp_img)
 
 #converting train images to array and applying mean subtraction processing
-
 x_img=np.array(x_img) 
-train_img=preprocess_input()
-# applying the same procedure with the test dataset
+train_img=preprocess_input(x_img)
 
-# test_img=[]
-# for i in range(len(test)):
-
-#     temp_img=image.load_img(test_path+test['filename'][i],target_size=(224,224))
-
-#     temp_img=image.img_to_array(temp_img)
-
-#     test_img.append(temp_img)
-
-# test_img=np.array(test_img) 
-# test_img=preprocess_input(test_img)
 
 # loading VGG16 model weights
 model = VGG16(weights='imagenet', include_top=False)
