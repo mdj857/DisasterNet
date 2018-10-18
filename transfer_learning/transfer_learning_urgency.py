@@ -20,6 +20,9 @@ import numpy as np
 from keras.applications.vgg16 import decode_predictions
 from keras.wrappers.scikit_learn import KerasClassifier
 from keras.layers import Dense, Activation
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+
+
 
 with open('../feat_vecs.pkl', 'rb') as f:
 	feature_vecs_old= pickle.load(f)
@@ -77,13 +80,48 @@ model.add(Activation('softmax'))
 
 model.compile(loss='categorical_crossentropy', optimizer="adam", metrics=['accuracy'])
 
-model.fit(X_train, Y_train, epochs=20, batch_size=128,validation_data=(X_valid,Y_valid))
+callbacks = [EarlyStopping(monitor='val_loss', patience=2),
+             ModelCheckpoint(filepath='best_model_urgency.h5', monitor='val_loss', save_best_only=True)]
 
-# serialize model to JSON
-model_json = model.to_json()
-with open("urgency_predictor_model.json", "w") as json_file:
-    json_file.write(model_json)
-# serialize weights to HDF5
-model.save_weights("urgency_predictor_weights.h5")
+history = model.fit(X_train, Y_train, epochs=20, batch_size=128, callbacks=callbacks, validation_data=(X_valid,Y_valid))
 
+import matplotlib.pyplot as plt
+
+#Plot training & validation accuracy values
+plt.plot(history.history['acc'])
+plt.plot(history.history['val_acc'])
+plt.title('Time Period Classifier Accuracy per Epoch')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Test'], loc='upper left')
+plt.show()
+
+# Plot training & validation loss values
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Time Period Classifier Categorical Cross-entropy Loss per Epoch')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Test'], loc='upper left')
+plt.show()
+
+model.save('urgency_model.h5')
+
+# get confusion matrix 
+import sklearn.metrics
+y_pred = model.predict(X_valid)
+matrix = sklearn.metrics.confusion_matrix(Y_valid.argmax(axis=1), y_pred.argmax(axis=1))
+
+import seaborn as sn
+import pandas as pd
+import matplotlib.pyplot as plt
+       
+df_cm = pd.DataFrame(matrix, range(5),
+                  range(5))
+plt.figure(figsize = (10,7))
+sn.set(font_scale=1.4)#for label size
+ax = sn.heatmap(df_cm, annot=True,annot_kws={"size": 16}, fmt='g')# font size
+ax.set_ylabel("Predicted")
+ax.set_xlabel("Actual")
+plt.show()
 
