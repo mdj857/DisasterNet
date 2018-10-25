@@ -9,6 +9,7 @@ from keras.applications.vgg16 import VGG16
 from keras.applications.vgg16 import preprocess_input
 from keras.preprocessing import image
 import numpy as np
+import pickle
 
 images_path = 'coded_images/'
 # combine the .csvs into a single dataframe
@@ -41,7 +42,6 @@ for index, row in combined.iterrows():
 		temp_img = image.load_img(images_path+get_relative_file_path(date, i_num), target_size=(224, 224))
 		temp_img = image.img_to_array(temp_img)
 		x_img.append(temp_img)
-		print "success for " + str(row)
 	except:
 		print "failed " + str(date) + "image num " + str(i_num) 
  

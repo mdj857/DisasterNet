@@ -30,20 +30,20 @@ with open('feat_vecs.pkl', 'rb') as f:
 	feature_vecs_old= pickle.load(f)
 
 df = pd.read_csv('Coder 1 CSV File.csv')
-Y_urgency_old = df['Q5Urgency']
+Y_tp_old = df['Q2TimePeriod']
 
 
 
 
 # remove the feature vecs and urgency levels for images with an empty label
 feature_vecs = []
-Y_urgency = []
-for a, b in zip(feature_vecs_old, Y_urgency_old):
+Y_tp = []
+for a, b in zip(feature_vecs_old, Y_tp_old):
     if b != u' ':
         feature_vecs.append(a)
-        Y_urgency.append(b)
+        Y_tp.append(b)
 
-
+'''
 # plot bar chart of occurences of each tag
 from collections import Counter
 urgency_counts = Counter(Y_urgency)
@@ -51,7 +51,7 @@ df = pd.DataFrame.from_dict(urgency_counts, orient='index')
 plt.xticks(rotation=90)
 df.plot(kind='bar')
 plt.clf()
-
+'''
 
 # loading VGG16 model weights
 vgg_model = VGG16(weights='imagenet', include_top=False)
@@ -62,9 +62,9 @@ feature_vecs = np.asarray(feature_vecs)
 
 print feature_vecs.shape
 # flattening the layers to conform to MLP input
-X=feature_vecs.reshape(1127, 25088)
+X=feature_vecs.reshape(1128, 25088)
 # converting target variable to array
-Y=np.asarray(Y_urgency)
+Y=np.asarray(Y_tp)
 #performing one-hot encoding for the target variable
 Y=pd.get_dummies(Y)
 
@@ -84,23 +84,23 @@ class_weights = compute_class_weight('balanced', np.unique(y_integers), y_intege
 d_class_weights = dict(enumerate(class_weights))
 print d_class_weights
 
-'''
+
 # model creation and fit 
 model=Sequential()
-model.add(Dense(1000, input_dim=25088, activation='sigmoid'))
+model.add(Dense(1000, input_dim=25088, activation='sigmoid', kernel_initializer='RandomNormal'))
 keras.layers.core.Dropout(0.3, noise_shape=None, seed=None)
 model.add(Dense(500,input_dim=1000,activation='sigmoid'))
 keras.layers.core.Dropout(0.4, noise_shape=None, seed=None)
 model.add(Dense(150,input_dim=500,activation='sigmoid'))
 keras.layers.core.Dropout(0.2, noise_shape=None, seed=None)
-model.add(Dense(units=5))
+model.add(Dense(units=3))
 model.add(Activation('softmax'))
 
 
 model.compile(loss='categorical_crossentropy', optimizer="adam", metrics=['accuracy'])
 
 callbacks = [EarlyStopping(monitor='val_loss', patience=2),
-             ModelCheckpoint(filepath='best_model_urgency.h5', monitor='val_loss', save_best_only=True)]
+             ModelCheckpoint(filepath='best_model_tp.h5', monitor='val_loss', save_best_only=True)]
 
 history = model.fit(X_train, Y_train, epochs=100, batch_size=32, callbacks=callbacks, validation_data=(X_valid,Y_valid), class_weight=d_class_weights)
 
@@ -109,28 +109,24 @@ history = model.fit(X_train, Y_train, epochs=100, batch_size=32, callbacks=callb
 #Plot training & validation accuracy values
 plt.plot(history.history['acc'])
 plt.plot(history.history['val_acc'])
-plt.title('Urgency Classifier Accuracy per Epoch')
+plt.title('Time Period Classifier Accuracy per Epoch')
 plt.ylabel('Accuracy')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Validation'], loc='upper left')
-plt.savefig('urgency_accuracy.png')
+plt.savefig('tp_accuracy.png')
 plt.clf()
 
 # Plot training & validation loss values
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
-plt.title('Urgency Classifier Categorical Cross-entropy Loss per Epoch')
+plt.title('Time Period Classifier Categorical Cross-entropy Loss per Epoch')
 plt.ylabel('Loss')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Validation'], loc='upper left')
-plt.savefig('urgency_loss.png')
+plt.savefig('tp_loss.png')
 plt.clf()
 
-model.save('urgency_model.h5')
-
-'''
-from keras.models import load_model
-model = load_model('urgency_model.h5')
+model.save('tp_model.h5')
 
 # get confusion matrix 
 import sklearn.metrics
@@ -149,13 +145,12 @@ import seaborn as sn
 import pandas as pd
 import matplotlib.pyplot as plt
        
-df_cm = pd.DataFrame(matrix, range(5),
-                  range(5))
+df_cm = pd.DataFrame(matrix, range(3),
+                  range(3))
 plt.figure(figsize = (10,7))
 sn.set(font_scale=1.4)#for label size
 ax = sn.heatmap(df_cm, annot=True,annot_kws={"size": 16}, fmt='g')# font size
 ax.set_ylabel("Actual")
 ax.set_xlabel("Predicted")
-plt.savefig("cm_urgency.png")
-plt.show()
+plt.savefig("cm_tp.png")
 
