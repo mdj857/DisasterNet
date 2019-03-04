@@ -3,6 +3,9 @@
 This project focuses on using transfer learning to classify images posted on Twitter during Hurricane Harvey
 into various categories useful to first responders such as urgency, relevance, presence of damage in the image. This project is part of an ongoing research effort by the Computational Media Lab at the University of Texas at Austin, supervised by Dr. Dhiraj Murthy.
 
+**NOTE:** In order to access the image database and pre-trained models used in this study, please download the .zip file located [here](https://www.dropbox.com/s/ifqrz7yc2n5byl9/models_and_data.zip?dl=0).
+
+
 The repository contains three main subdirectories, outlined below: 
 
 ## google_cloud_vision
@@ -27,4 +30,5 @@ Contains scripts used to create and train each model from a pickled feature vect
 **f1_score_scripts**
 Contains scripts used to compute the F1-Micro and F1-Macro score of each classifier from their corresponding .h5 file. 
 
-
+If you have any questions, please don't hesitate to send an email to
+mjohn son082396 -at- gmail.com
